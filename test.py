@@ -3,27 +3,12 @@ import math
 import pgeocode
 
 
-
-# # Authenticate to Twitter
-# auth = tweepy.OAuthHandler("pGBDoAaEpkliVKBOLwjtcmHGc", 
-#     "xF3g1wrP50b6BlZEd20u4oVfjgH1FGQcuWUzlQO5aUWOufvlhw")
-# auth.set_access_token("622518493-6VcLIPprbQbv9wkcBBPvCle8vsjU9fE85Dq9oStl", 
-#     "tH9aKQbQQ1iRdYTcLSsPwitl44BkAc6jilrsU0ifnXvZhq")
-
-# api = tweepy.API(auth)
-
-# try:
-#     api.verify_credentials()
-#     print("Authentication OK")
-# except:
-#     print("Error during authentication")
-
-
 class Volunteer:
     
     def __init__(self, name, postal_code):
         self.name = name
         self.postal_code = postal_code
+        self.distance = -1 #default value
         
     def say_hi(self):
         print("Hi, I am " + self.name)
@@ -33,38 +18,39 @@ class Recipient(Volunteer):
         self.grocery_list = grocery_list
         self.name = name
         self.postal_code = postal_code
+        self.distance = -1 #default value
 
     def print_list(self):
         for item in self.grocery_list:
             print(item)
 
-lista = [
-    'H7Y 9E6',
-    'H7X 0J4',
-    'G3E 4G0',
-    'J9B 4R6',
-    'J0L 0T2',
-    'K7C 0H5'
+
+recip_list = [
+    Recipient('Alice','B1T 1Y9',['apples','bananas','oranges']),
+    Recipient('Bob','H7X 0J4',['apples','bananas','oranges']),
+    Recipient('Carson','E5S 6K1',['apples','bananas','oranges']),
+    Recipient('Dale','V1L 1E5',['apples','bananas','oranges']),
+    Recipient('Elon','J0M 3L1',['apples','bananas','oranges'])
 ]
-listb = [
-    'E7P 2L2',
-    'G0A 5S8',
-    'E5S 6K1',
-    'V1L 1E5',
-    'R7N 9S6',
-    'J0M 3L1'
-]
-dist = pgeocode.GeoDistance('CA')
-print(dist.query_postal_code(lista, listb))
-# user1 = Volunteer("John","2658 Hammond Rd")
-# user2 = Recipient("Jill", "2777 Hammond Rd",['apples','bananas','oranges'])
 
-# user2.print_list()
+def calc_distance(volunteer, recip_list, country = 'CA'): #calculates distance for each postal code and then returns a sorted list
+    dist = pgeocode.GeoDistance(country) 
+    for recipient in recip_list:
+        recipient.distance = math.ceil(dist.query_postal_code(volunteer.postal_code, recipient.postal_code))
+    
+    recip_list.sort(key= lambda x: x.distance, reverse=True)
+    return
 
-# print(user1.name)
-# user1.name = "joe"
-# print(user1.name)
+vol1 = Volunteer('Fred','L5K 2M3')
 
-# print(user2.address)
+calc_distance(vol1, recip_list)
 
+for i in recip_list: 
+    print(str(i.distance) + '  ' + i.name)
 
+print(recip_list.pop())
+
+print('\n\n')
+
+for i in recip_list: 
+    print(str(i.distance) + '  ' + i.name)
